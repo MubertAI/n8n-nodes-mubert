@@ -38,7 +38,8 @@
         "n8nNodesApiVersion": 1,
         "strict": true,
         "credentials": [
-            "dist/credentials/MubertApi.credentials.js"
+            "dist/credentials/MubertApi.credentials.js",
+            "dist/credentials/MubertKeyApi.credentials.js"
         ],
         "nodes": [
             "dist/nodes/Mubert/Mubert.node.js"

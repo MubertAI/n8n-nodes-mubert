@@ -11,6 +11,36 @@ import { NodeApiError, NodeOperationError, sleep } from 'n8n-workflow';
 
 export const BASE_URL = 'https://music-api.mubert.com/api/v3';
 
+interface Connection {
+	credential: 'mubertApi' | 'mubertKeyApi';
+	baseUrl: string;
+	gateway: boolean;
+}
+
+function authenticationOf(this: IExecuteFunctions | ILoadOptionsFunctions): string {
+	const loadOptions = this as ILoadOptionsFunctions;
+	if (typeof loadOptions.getCurrentNodeParameter === 'function') {
+		return (loadOptions.getCurrentNodeParameter('authentication') as string) ?? 'apiKey';
+	}
+	return (this as IExecuteFunctions).getNodeParameter('authentication', 0, 'apiKey') as string;
+}
+
+// The gateway (one mk_ key) mirrors the music-api customer endpoints under /v1.
+export async function connection(
+	this: IExecuteFunctions | ILoadOptionsFunctions,
+): Promise<Connection> {
+	if (authenticationOf.call(this) === 'customerToken') {
+		return { credential: 'mubertApi', baseUrl: BASE_URL, gateway: false };
+	}
+	const credentials = await this.getCredentials('mubertKeyApi');
+	const baseUrl = String(credentials.baseUrl || 'https://automation.mubert.com').replace(/\/$/, '');
+	return { credential: 'mubertKeyApi', baseUrl, gateway: true };
+}
+
+export function routePath(conn: Connection, endpoint: string): string {
+	return conn.gateway ? endpoint.replace(/^\/public\//, '/v1/') : endpoint;
+}
+
 const USER_AGENT = 'n8n-nodes-mubert/0.1.0';
 
 const PRICING_URL = 'https://mubert.com/api';
@@ -70,6 +100,10 @@ function extractErrorCode(error: JsonObject): string | undefined {
 		error.description,
 	];
 	for (const candidate of candidates) {
+		const nested = (candidate as JsonObject | undefined)?.error as JsonObject | undefined;
+		if (nested && typeof nested === 'object' && 'code' in nested) {
+			return String(nested.code);
+		}
 		if (candidate && typeof candidate === 'object' && 'code' in candidate) {
 			return String((candidate as JsonObject).code);
 		}
@@ -94,6 +128,11 @@ function extractApiMessage(error: JsonObject): string | undefined {
 			| undefined) ??
 		((error.response as JsonObject | undefined)?.data as JsonObject | undefined) ??
 		((error.response as JsonObject | undefined)?.body as JsonObject | undefined);
+	const nested = body?.error as JsonObject | undefined;
+	if (nested && typeof nested.message === 'string') {
+		const extra = [nested.guidance, nested.upgrade_url].filter((v) => typeof v === 'string');
+		return [nested.message, ...extra].join(' ');
+	}
 	if (body && typeof body === 'object' && typeof body.message === 'string') return body.message;
 	return undefined;
 }
@@ -105,9 +144,10 @@ export async function mubertApiRequest(
 	body?: IDataObject,
 	qs?: IDataObject,
 ): Promise<IDataObject> {
+	const conn = await connection.call(this);
 	const options: IHttpRequestOptions = {
 		method,
-		url: `${BASE_URL}${endpoint}`,
+		url: `${conn.baseUrl}${routePath(conn, endpoint)}`,
 		headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
 		json: true,
 	};
@@ -117,13 +157,14 @@ export async function mubertApiRequest(
 	try {
 		return (await this.helpers.httpRequestWithAuthentication.call(
 			this,
-			'mubertApi',
+			conn.credential,
 			options,
 		)) as IDataObject;
 	} catch (error) {
 		const code = extractErrorCode(error as JsonObject);
-		const hint = code ? ERROR_HINTS[code] : undefined;
 		const apiMessage = extractApiMessage(error as JsonObject);
+		// Gateway errors are already written for people; music-api codes get our hints.
+		const hint = code?.startsWith('Gateway') ? apiMessage : code ? ERROR_HINTS[code] : undefined;
 		// The auth helper already wraps failures in NodeApiError, and the constructor returns an
 		// existing NodeApiError unchanged, so set the readable message on the instance itself.
 		const apiError =

@@ -47,13 +47,19 @@ Notes:
 
 ## Credentials
 
-You need Mubert API credentials for one API user: a **Customer ID** and an **Access Token**.
+Two ways to connect:
+
+**Mubert Automation API (recommended).** One API key `mk_…`.
+
+1. No key yet? Add a Mubert node, choose **Account → Get Free Key**, enter your email and run it. You get a key with 10 free tracks instantly.
+2. Create a **Mubert Automation API** credential and paste the key.
+3. **Account → Get Usage** shows how many tracks are left.
+
+**Customer ID and Access Token.** For existing Mubert API customers.
 
 1. Get an API plan at [mubert.com/api](https://mubert.com/api). You receive a `company-id` and a `license-token`.
-2. Create a customer (an API user) with `POST https://music-api.mubert.com/api/v3/service/customers` using those headers and any `custom_id`. The response contains the customer `id` and `access.token`.
-3. In n8n, create a **Mubert API** credential: Customer ID = the customer `id` (not `access.id`), Access Token = `access.token`.
-
-The access token renews itself while you use it and expires after about a month of inactivity.
+2. Create a customer with `POST https://music-api.mubert.com/api/v3/service/customers` using those headers and any `custom_id`. The response contains the customer `id` and `access.token`.
+3. Create a **Mubert API** credential: Customer ID = the customer `id` (not `access.id`), Access Token = `access.token`. The token renews itself while in use and expires after about a month of inactivity.
 
 ## Compatibility
 
@@ -77,4 +83,4 @@ Built and tested with n8n 2.43.
 
 ### 0.1.0
 
-First release: generate (prompt, playlist, image), generate similar, edit, get, get many tracks; get many playlists.
+First release: generate (prompt, playlist, image), generate similar, edit, get, get many tracks; get many playlists; free key and usage via the Mubert Automation API.

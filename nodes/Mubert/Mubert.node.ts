@@ -6,18 +6,25 @@ import type {
 	INodePropertyOptions,
 	INodeType,
 	INodeTypeDescription,
+	JsonObject,
 } from 'n8n-workflow';
-import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import {
-	BASE_URL,
+	connection,
 	downloadTrack,
 	getTrack,
 	mubertApiRequest,
+	routePath,
 	simplifyTrack,
 	waitForTrack,
 	type MubertTrack,
 } from './GenericFunctions';
+import {
+	accountFields,
+	accountOperations,
+	DEFAULT_GATEWAY_URL,
+} from './descriptions/AccountDescription';
 import { playlistFields, playlistOperations } from './descriptions/PlaylistDescription';
 import { trackFields, trackOperations } from './descriptions/TrackDescription';
 
@@ -37,19 +44,49 @@ export class Mubert implements INodeType {
 		usableAsTool: true,
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
-		credentials: [{ name: 'mubertApi', required: true }],
+		credentials: [
+			{
+				name: 'mubertKeyApi',
+				required: true,
+				displayOptions: {
+					show: { authentication: ['apiKey'] },
+					hide: { operation: ['getFreeKey'] },
+				},
+			},
+			{
+				name: 'mubertApi',
+				required: true,
+				displayOptions: {
+					show: { authentication: ['customerToken'] },
+					hide: { operation: ['getFreeKey'] },
+				},
+			},
+		],
 		properties: [
+			{
+				displayName: 'Authentication',
+				name: 'authentication',
+				type: 'options',
+				options: [
+					{ name: 'Mubert API Key', value: 'apiKey' },
+					{ name: 'Customer ID and Access Token', value: 'customerToken' },
+				],
+				default: 'apiKey',
+			},
 			{
 				displayName: 'Resource',
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
 				options: [
-					{ name: 'Track', value: 'track' },
+					{ name: 'Account', value: 'account' },
 					{ name: 'Playlist', value: 'playlist' },
+					{ name: 'Track', value: 'track' },
 				],
 				default: 'track',
 			},
+			...accountOperations,
+			...accountFields,
 			...trackOperations,
 			...trackFields,
 			...playlistOperations,
@@ -80,6 +117,52 @@ export class Mubert implements INodeType {
 			try {
 				const resource = this.getNodeParameter('resource', i) as string;
 				const operation = this.getNodeParameter('operation', i) as string;
+
+				if (resource === 'account' && operation === 'getFreeKey') {
+					const email = (this.getNodeParameter('email', i) as string).trim();
+					const options = this.getNodeParameter('freeKeyOptions', i, {}) as IDataObject;
+					const baseUrl = String(options.baseUrl || DEFAULT_GATEWAY_URL).replace(/\/$/, '');
+					let response: IDataObject;
+					try {
+						response = (await this.helpers.httpRequest({
+							method: 'POST',
+							url: `${baseUrl}/v1/trial`,
+							body: { email, source: 'n8n', instance_id: this.getInstanceId() },
+							json: true,
+						})) as IDataObject;
+					} catch (error) {
+						const body = ((error as JsonObject).response as JsonObject | undefined)?.body as
+							| JsonObject
+							| undefined;
+						const gatewayError = body?.error as JsonObject | undefined;
+						throw new NodeApiError(this.getNode(), error as JsonObject, {
+							message: (gatewayError?.message as string) ?? 'Could not get a free key',
+							description: (gatewayError?.guidance as string) ?? undefined,
+						});
+					}
+					returnData.push({
+						json: {
+							...response,
+							next_step:
+								'Create a "Mubert Automation API" credential and paste api_key into it. Then set Authentication to "Mubert API Key".',
+						},
+						pairedItem: { item: i },
+					});
+					continue;
+				}
+
+				if (resource === 'account' && operation === 'getUsage') {
+					if (this.getNodeParameter('authentication', i) !== 'apiKey') {
+						throw new NodeOperationError(
+							this.getNode(),
+							'Usage is available with a Mubert API key',
+							{ itemIndex: i, description: 'Set Authentication to "Mubert API Key"' },
+						);
+					}
+					const response = await mubertApiRequest.call(this, 'GET', '/v1/me');
+					returnData.push({ json: response.data as IDataObject, pairedItem: { item: i } });
+					continue;
+				}
 
 				if (resource === 'playlist' && operation === 'getAll') {
 					const returnAll = this.getNodeParameter('returnAll', i) as boolean;
@@ -330,9 +413,10 @@ async function generateFromImage(
 		Buffer.from(`\r\n--${boundary}--\r\n`),
 	);
 
-	const response = (await this.helpers.httpRequestWithAuthentication.call(this, 'mubertApi', {
+	const conn = await connection.call(this);
+	const response = (await this.helpers.httpRequestWithAuthentication.call(this, conn.credential, {
 		method: 'POST',
-		url: `${BASE_URL}/public/tracks`,
+		url: `${conn.baseUrl}${routePath(conn, '/public/tracks')}`,
 		headers: {
 			'Content-Type': `multipart/form-data; boundary=${boundary}`,
 			Accept: 'application/json',
