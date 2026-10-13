@@ -81,6 +81,10 @@ Built and tested with n8n 2.43.
 
 ## Version history
 
+### 0.1.2
+
+Official Mubert logo.
+
 ### 0.1.1
 
 Published from GitHub Actions with npm provenance.

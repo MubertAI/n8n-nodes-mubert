@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Official Mubert logo (the wave mark with the brand gradient).
+
 ## 0.1.1
 
 - First release published from GitHub Actions with npm provenance (Trusted Publishing).
