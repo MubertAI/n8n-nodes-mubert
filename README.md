@@ -81,6 +81,10 @@ Built and tested with n8n 2.43.
 
 ## Version history
 
+### 0.1.1
+
+Published from GitHub Actions with npm provenance.
+
 ### 0.1.0
 
 First release: generate (prompt, playlist, image), generate similar, edit, get, get many tracks; get many playlists; free key and usage via the Mubert Automation API.

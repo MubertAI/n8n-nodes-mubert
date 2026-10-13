@@ -1,6 +1,6 @@
 {
     "name": "@mubert/n8n-nodes-mubert",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Generate royalty-free music of an exact length for videos, apps and games with the Mubert API",
     "license": "MIT",
     "homepage": "https://github.com/MubertAI/n8n-nodes-mubert",
@@ -20,7 +20,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/MubertAI/n8n-nodes-mubert.git"
+        "url": "git+https://github.com/MubertAI/n8n-nodes-mubert.git"
     },
     "scripts": {
         "build": "n8n-node build",
