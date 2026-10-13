@@ -242,6 +242,12 @@ export const trackFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['track'], operation: ['generate'] } },
 		options: [
 			{
+				name: 'Describe Use Case',
+				value: 'useCase',
+				description:
+					'Say what the music is for (a video topic, title or whole script). AI picks the best Mubert playlist and settings. Needs a Mubert API key.',
+			},
+			{
 				name: 'Text Prompt',
 				value: 'prompt',
 				description: 'Describe the music in words',
@@ -257,7 +263,27 @@ export const trackFields: INodeProperties[] = [
 				description: 'Generate music that matches an image from a binary field',
 			},
 		],
-		default: 'prompt',
+		default: 'useCase',
+	},
+	{
+		displayName: 'What Is the Music For?',
+		name: 'useCase',
+		type: 'string',
+		typeOptions: { rows: 3 },
+		required: true,
+		default: '',
+		placeholder: 'e.g. 30-second TikTok about making morning coffee',
+		displayOptions: { show: { resource: ['track'], operation: ['generate'], source: ['useCase'] } },
+		description:
+			'A video topic, title or the whole script — map it from the previous step. The chosen playlist and the reason come back in the output.',
+	},
+	{
+		displayName: 'Voice-Over',
+		name: 'voiceover',
+		type: 'boolean',
+		default: false,
+		displayOptions: { show: { resource: ['track'], operation: ['generate'], source: ['useCase'] } },
+		description: 'Whether someone speaks over the music. The music is then kept quieter.',
 	},
 	{
 		displayName: 'Prompt',

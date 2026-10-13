@@ -297,6 +297,7 @@ export class Mubert implements INodeType {
 					});
 				}
 
+				const plan = track.plan as IDataObject | undefined;
 				const item: INodeExecutionData = { json: {}, pairedItem: { item: i } };
 				if (this.getNodeParameter('waitForCompletion', i) as boolean) {
 					const waitSettings = this.getNodeParameter('waitSettings', i, {}) as IDataObject;
@@ -313,6 +314,7 @@ export class Mubert implements INodeType {
 					}
 				}
 				item.json = simplify ? simplifyTrack(track) : track;
+				if (plan) item.json.plan = plan;
 				returnData.push(item);
 			} catch (error) {
 				if (this.continueOnFail()) {
@@ -345,6 +347,28 @@ async function generate(this: IExecuteFunctions, i: number): Promise<MubertTrack
 	}
 
 	const body: IDataObject = { duration, ...additional };
+	if (source === 'useCase') {
+		const conn = await connection.call(this);
+		if (!conn.gateway) {
+			throw new NodeOperationError(this.getNode(), 'Describe Use Case needs a Mubert API key', {
+				itemIndex: i,
+				description:
+					'Set Authentication to "Mubert API Key", or use the Text Prompt or Playlist source.',
+			});
+		}
+		const useCase = (this.getNodeParameter('useCase', i) as string).trim();
+		if (!useCase) {
+			throw new NodeOperationError(this.getNode(), 'Describe what the music is for', {
+				itemIndex: i,
+			});
+		}
+		body.use_case = useCase;
+		body.voiceover = this.getNodeParameter('voiceover', i, false) as boolean;
+		const response = await mubertApiRequest.call(this, 'POST', '/public/tracks', body);
+		const track = response.data as MubertTrack;
+		if (response.plan) track.plan = response.plan;
+		return track;
+	}
 	if (source === 'prompt') {
 		const prompt = (this.getNodeParameter('prompt', i) as string).trim();
 		if (!prompt) {
