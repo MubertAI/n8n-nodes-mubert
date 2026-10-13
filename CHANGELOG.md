@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Account → Get Upgrade Link: a link to buy more tracks, tied to your key.
+- Upgrade hints in the credential and the Account resource; limit errors carry an upgrade link.
+
 ## 0.1.2
 
 - Official Mubert logo (the wave mark with the brand gradient).

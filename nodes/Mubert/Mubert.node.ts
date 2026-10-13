@@ -151,6 +151,22 @@ export class Mubert implements INodeType {
 					continue;
 				}
 
+				if (resource === 'account' && operation === 'getUpgradeLink') {
+					if (this.getNodeParameter('authentication', i) !== 'apiKey') {
+						throw new NodeOperationError(
+							this.getNode(),
+							'Upgrade links work with a Mubert API key',
+							{
+								itemIndex: i,
+								description: 'Plans for direct API customers: https://mubert.com/api',
+							},
+						);
+					}
+					const response = await mubertApiRequest.call(this, 'GET', '/v1/upgrade');
+					returnData.push({ json: response.data as IDataObject, pairedItem: { item: i } });
+					continue;
+				}
+
 				if (resource === 'account' && operation === 'getUsage') {
 					if (this.getNodeParameter('authentication', i) !== 'apiKey') {
 						throw new NodeOperationError(

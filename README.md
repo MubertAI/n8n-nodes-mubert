@@ -53,7 +53,7 @@ Two ways to connect:
 
 1. No key yet? Add a Mubert node, choose **Account → Get Free Key**, enter your email and run it. You get a key instantly with a few free tracks, valid for 7 days. The output shows the exact limits.
 2. Create a **Mubert Automation API** credential and paste the key.
-3. **Account → Get Usage** shows how many tracks are left.
+3. **Account → Get Usage** shows how many tracks are left; **Account → Get Upgrade Link** gives a link to buy more for the same key.
 
 **Customer ID and Access Token.** For existing Mubert API customers.
 
@@ -80,6 +80,10 @@ Built and tested with n8n 2.43.
 - [Mubert API documentation](https://mubert.com/api/docs)
 
 ## Version history
+
+### 0.1.3
+
+Account → Get Upgrade Link; upgrade hints.
 
 ### 0.1.2
 

@@ -25,7 +25,7 @@ export class MubertKeyApi implements ICredentialType {
 			required: true,
 			placeholder: 'mk_...',
 			description:
-				'Your Mubert API key. No key yet? Add a Mubert node, choose Account → Get Free Key, run it, and paste the key here.',
+				'Your Mubert API key. No key yet? Add a Mubert node, choose Account → Get Free Key, run it, and paste the key here. Need more tracks? Run Account → Get Upgrade Link, or see <a href="https://mubert.com/api" target="_blank">mubert.com/api</a>.',
 		},
 		{
 			displayName: 'Base URL',
