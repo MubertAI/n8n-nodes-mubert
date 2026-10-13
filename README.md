@@ -1,4 +1,4 @@
-# n8n-nodes-mubert
+# @mubert/n8n-nodes-mubert
 
 This is an n8n community node. It lets you use [Mubert](https://mubert.com/api) in your n8n workflows.
 
@@ -16,7 +16,7 @@ Mubert generates royalty-free music from a text prompt, a genre or mood channel,
 
 ## Installation
 
-Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation. The package name is `n8n-nodes-mubert`.
+Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation. The package name is `@mubert/n8n-nodes-mubert`.
 
 ## Operations
 
