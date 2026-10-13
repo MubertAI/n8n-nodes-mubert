@@ -127,9 +127,7 @@ export async function mubertApiRequest(
 		// The auth helper already wraps failures in NodeApiError, and the constructor returns an
 		// existing NodeApiError unchanged, so set the readable message on the instance itself.
 		const apiError =
-			error instanceof NodeApiError
-				? error
-				: new NodeApiError(this.getNode(), error as JsonObject);
+			error instanceof NodeApiError ? error : new NodeApiError(this.getNode(), error as JsonObject);
 		const notFound = !code && String(apiError.httpCode) === '404';
 		const message =
 			hint ??

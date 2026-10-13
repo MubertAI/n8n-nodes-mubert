@@ -280,7 +280,8 @@ export const trackFields: INodeProperties[] = [
 		displayOptions: {
 			show: { resource: ['track'], operation: ['generate'], source: ['playlist'] },
 		},
-		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>. IDs look like "6.4.0" (category.group.channel). Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		description:
+			'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>. IDs look like "6.4.0" (category.group.channel). Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
 	{
 		displayName: 'Input Binary Field',
@@ -365,7 +366,11 @@ export const trackFields: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['track'], operation: ['edit'] } },
 		options: [
-			{ name: 'Change Settings', value: 'settings', description: 'Change duration, intensity or format' },
+			{
+				name: 'Change Settings',
+				value: 'settings',
+				description: 'Change duration, intensity or format',
+			},
 			{ name: 'Delete Instruments', value: 'deleteInstruments' },
 			{ name: 'Delete Stems', value: 'deleteStems' },
 			{ name: 'Replace Instruments', value: 'replaceInstruments' },
