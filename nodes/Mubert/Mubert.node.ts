@@ -371,7 +371,11 @@ async function generate(this: IExecuteFunctions, i: number): Promise<MubertTrack
 		Object.assign(body, playlistOptions);
 	}
 
-	const response = await mubertApiRequest.call(this, 'POST', '/public/tracks', body);
+	// Always a fresh render: the direct API uses /record to skip the pre-rendered track store;
+	// the gateway does the same behind /v1/tracks.
+	const conn = await connection.call(this);
+	const endpoint = conn.gateway ? '/public/tracks' : '/public/tracks/record';
+	const response = await mubertApiRequest.call(this, 'POST', endpoint, body);
 	return response.data as MubertTrack;
 }
 
