@@ -13,7 +13,7 @@ export const accountOperations: INodeProperties[] = [
 			{
 				name: 'Get Free Key',
 				value: 'getFreeKey',
-				description: 'Get a free Mubert API key: 5 tracks, up to 60 seconds each, for 7 days. No credential needed.',
+				description: 'Get a free Mubert API key with a few free tracks, valid for 7 days. No credential needed.',
 				action: 'Get a free API key',
 			},
 			{
