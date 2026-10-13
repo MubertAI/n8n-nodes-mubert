@@ -51,7 +51,7 @@ Two ways to connect:
 
 **Mubert Automation API (recommended).** One API key `mk_…`.
 
-1. No key yet? Add a Mubert node, choose **Account → Get Free Key**, enter your email and run it. You get a key with 10 free tracks instantly.
+1. No key yet? Add a Mubert node, choose **Account → Get Free Key**, enter your email and run it. You get a key instantly: 5 free tracks, up to 30 seconds each, valid for 7 days.
 2. Create a **Mubert Automation API** credential and paste the key.
 3. **Account → Get Usage** shows how many tracks are left.
 
