@@ -1,0 +1,113 @@
+{
+  "name": "Royalty-free background music of exact length (Mubert)",
+  "nodes": [
+    {
+      "id": "t1",
+      "name": "Run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "s1",
+      "name": "Music settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "description",
+              "type": "string",
+              "value": "Calm background music for a product demo video with a voice-over"
+            },
+            {
+              "id": "a2",
+              "name": "duration",
+              "type": "number",
+              "value": 20
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "m1",
+      "name": "Mubert",
+      "type": "@mubert/n8n-nodes-mubert.mubert",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "track",
+        "operation": "generate",
+        "source": "useCase",
+        "useCase": "={{ $json.description }}",
+        "duration": "={{ $json.duration }}",
+        "waitForCompletion": true,
+        "download": true,
+        "binaryPropertyName": "music",
+        "simplify": true,
+        "additionalFields": {
+          "intensity": "low",
+          "format": "mp3"
+        }
+      }
+    },
+    {
+      "id": "n1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "width": 620,
+        "height": 220,
+        "content": "## Background music of exact length\nDescribe what the music is for and set the length in seconds. The Mubert node renders a royalty-free track of exactly that length and returns it as binary `music` (mp3), ready for your render or upload step.\n\nCredential: **Mubert Automation API**. No key yet? The credential form links to a free key."
+      }
+    }
+  ],
+  "connections": {
+    "Run": {
+      "main": [
+        [
+          {
+            "node": "Music settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music settings": {
+      "main": [
+        [
+          {
+            "node": "Mubert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
