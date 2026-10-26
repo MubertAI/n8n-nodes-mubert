@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- Re-release of 1.0.1 for verification review (no code changes).
+
 ## 1.0.1
 
 - Codex: `node` is the full node identifier `@mubert/n8n-nodes-mubert.mubert`.

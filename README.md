@@ -85,6 +85,10 @@ Built and tested with n8n 2.43.
 
 ## Version history
 
+### 1.0.2
+
+Re-release for verification review.
+
 ### 1.0.1
 
 Codex `node` identifier fixed.
