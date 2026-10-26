@@ -85,6 +85,10 @@ Built and tested with n8n 2.43.
 
 ## Version history
 
+### 1.0.1
+
+Codex `node` identifier fixed.
+
 ### 1.0.0
 
 First release: generate tracks (use case, prompt, playlist, image), generate similar, edit, get, get many; playlists; free key, usage and upgrade link via the Mubert Automation API.
