@@ -119,15 +119,20 @@ function extractErrorCode(error: JsonObject): string | undefined {
 	return undefined;
 }
 
-function extractApiMessage(error: JsonObject): string | undefined {
-	const body =
+function errorBody(error: JsonObject): JsonObject | undefined {
+	return (
 		((error.context as JsonObject | undefined)?.data as JsonObject | undefined) ??
 		((error.cause as JsonObject | undefined)?.error as JsonObject | undefined) ??
 		(((error.cause as JsonObject | undefined)?.response as JsonObject | undefined)?.data as
 			| JsonObject
 			| undefined) ??
 		((error.response as JsonObject | undefined)?.data as JsonObject | undefined) ??
-		((error.response as JsonObject | undefined)?.body as JsonObject | undefined);
+		((error.response as JsonObject | undefined)?.body as JsonObject | undefined)
+	);
+}
+
+function extractApiMessage(error: JsonObject): string | undefined {
+	const body = errorBody(error);
 	const nested = body?.error as JsonObject | undefined;
 	if (nested && typeof nested.message === 'string') {
 		const extra = [nested.guidance, nested.upgrade_url].filter((v) => typeof v === 'string');
@@ -135,6 +140,12 @@ function extractApiMessage(error: JsonObject): string | undefined {
 	}
 	if (body && typeof body === 'object' && typeof body.message === 'string') return body.message;
 	return undefined;
+}
+
+// The Automation API returns the key's own upgrade page: buying there upgrades the same key.
+function extractUpgradeUrl(error: JsonObject): string | undefined {
+	const url = (errorBody(error)?.error as JsonObject | undefined)?.upgrade_url;
+	return typeof url === 'string' && url.startsWith('https://') ? url : undefined;
 }
 
 export async function mubertApiRequest(
@@ -164,7 +175,13 @@ export async function mubertApiRequest(
 		const code = extractErrorCode(error as JsonObject);
 		const apiMessage = extractApiMessage(error as JsonObject);
 		// Gateway errors are already written for people; music-api codes get our hints.
-		const hint = code?.startsWith('Gateway') ? apiMessage : code ? ERROR_HINTS[code] : undefined;
+		const upgradeUrl = extractUpgradeUrl(error as JsonObject);
+		const knownHint = code ? ERROR_HINTS[code] : undefined;
+		const hint = code?.startsWith('Gateway')
+			? apiMessage
+			: upgradeUrl && knownHint
+				? knownHint.replace(PRICING_URL, upgradeUrl)
+				: knownHint;
 		// The auth helper already wraps failures in NodeApiError, and the constructor returns an
 		// existing NodeApiError unchanged, so set the readable message on the instance itself.
 		const apiError =

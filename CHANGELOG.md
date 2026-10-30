@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3
+
+- Out of tracks or plan ended: with the Mubert Automation API key, the error links to the key's own upgrade page (buying there upgrades the same key) instead of mubert.com/api.
+
 ## 1.0.2
 
 - Re-release of 1.0.1 for verification review (no code changes).
